@@ -1,9 +1,9 @@
 from unicodedata import name
 from django.urls import path
-from . import views
+from .views import Tasklist, TaskDetail
 
 
 urlpatterns = [
-    path('', views.tasklist, name='tasks'),
-
+    path('', Tasklist.as_view(), name='tasks'),
+    path('task/<int:pk>/', TaskDetail.as_view(), name='task'),
 ]
