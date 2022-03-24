@@ -1,4 +1,13 @@
-<h1>MY TO DO LIST APP</h1>
+{% if request.user.is_authenticated %}
+<p>{{request.user}}</p>
+<a href="">LogOut</a>
+{% else %}
+<a href="{% url 'login' %}">LogIn</a>
+{% endif %}
+
+
+<hr>
+<h1>MY TO DO LIST</h1>
 <a href="{% url 'task-create' %}">Add Task</a>
 
 <table>
@@ -13,6 +22,7 @@
         <td>{{task.title}}</td>
         <td><a href="{% url 'task' task.id %}">View</a></td>
         <td><a href="{% url 'task-update' task.id %}">Edit</a></td>
+        <td><a href="{% url 'task-delete' task.id %}">Delete</a></td>
     </tr>
     {% empty %}
     <h3>No items in list</h3>
