@@ -3,7 +3,7 @@ To Do list app with User Registration, Login, Search and full Create Read Update
 
 ![DEMO](./Screenshot.png)
 
-## Quick Guide
+## A Quick Guide 🚀
 ### Requirements
 You must have Python3 & and pip installed.
 ### Clone this repo
