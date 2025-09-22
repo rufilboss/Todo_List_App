@@ -1,5 +1,5 @@
 # Django To-Do-List WebApp With User Authentication
-To Do list app with User Registration, Login, Search and full Create Read Update and DELETE functionality.
+To Do list app with User Registration, Login, Search, and full Create, Read, Update, and DELETE functionality.
 
 ![DEMO](./Screenshot.png)
 
@@ -21,9 +21,9 @@ python3 manage.py runserver
 Now the website should be running at http://localhost:8000!
 
 ### Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Just to let you know, pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please make sure to update texts as appropriate.
+Please ensure that you update the texts as needed.
 
 ### License
-This project is MIT Licensed.
+This project is MIT-licensed.
