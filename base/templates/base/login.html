@@ -2,21 +2,158 @@
 {% block content %}
 
 <div class="header-bar">
-    <h1>Login</h1>
+    <div class="header-content">
+        <div>
+            <h1><i class="fas fa-sign-in-alt"></i> Welcome Back</h1>
+            <h3>Sign in to your account</h3>
+        </div>
+    </div>
 </div>
 
-<div class="card-body">
-    <form method="POST">
+<div class="auth-container">
+    <form method="POST" class="auth-form">
         {% csrf_token %}
-        {{form.as_p}}
-        <input class="button" type="submit" value="Login">
+        
+        {% if form.non_field_errors %}
+            <div class="error-banner">
+                {% for error in form.non_field_errors %}
+                    <span><i class="fas fa-exclamation-triangle"></i> {{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" 
+                       id="{{ form.username.id_for_label }}" 
+                       name="{{ form.username.name }}" 
+                       value="{{ form.username.value|default:'' }}"
+                       class="form-input"
+                       placeholder="Enter your username"
+                       required>
+            </div>
+            {% if form.username.errors %}
+                <div class="error-message">
+                    {% for error in form.username.errors %}
+                        <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            <div class="input-wrapper">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" 
+                       id="{{ form.password.id_for_label }}" 
+                       name="{{ form.password.name }}"
+                       class="form-input"
+                       placeholder="Enter your password"
+                       required>
+            </div>
+            {% if form.password.errors %}
+                <div class="error-message">
+                    {% for error in form.password.errors %}
+                        <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
     </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+    
+    <div class="auth-footer">
+        <p>Don't have an account? <a href="{% url 'register' %}" class="auth-link">Create one here</a></p>
+    </div>
 </div>
 
+<style>
+    .auth-container {
+        padding: 3rem 2rem;
+        background: white;
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
+    .auth-form {
+        margin-bottom: 2rem;
+    }
 
+    .error-banner {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--danger);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: var(--danger);
+    }
 
+    .error-banner span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
 
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+        z-index: 1;
+    }
+
+    .input-wrapper .form-input {
+        padding-left: 3rem;
+    }
+
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .auth-footer p {
+        color: var(--gray-600);
+        margin: 0;
+    }
+
+    .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+        .auth-container {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
 
 {% endblock content %}

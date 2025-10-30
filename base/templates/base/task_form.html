@@ -2,17 +2,221 @@
 {% block content %}
 
 <div class="header-bar">
-    <a href="{% url 'tasks' %}">&#8592; Back</a>
+    <div class="header-content">
+        <div>
+            <h1><i class="fas fa-edit"></i> {% if object %}Edit Task{% else %}Create Task{% endif %}</h1>
+            <h3>{% if object %}Update your task details{% else %}Add a new task to your list{% endif %}</h3>
+        </div>
+        <a href="{% url 'tasks' %}">
+            <i class="fas fa-arrow-left"></i> Back to Tasks
+        </a>
+    </div>
 </div>
 
-
-<div class="card-body">
-    <form method="POST" action="">
+<div class="form-container">
+    <form method="POST" class="modern-form">
         {% csrf_token %}
-        {{form.as_p}}
-        <input class="button" type="submit" value="Submit">
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Task Title</label>
+            <input type="text" 
+                   id="{{ form.title.id_for_label }}" 
+                   name="{{ form.title.name }}" 
+                   value="{{ form.title.value|default:'' }}"
+                   class="form-input"
+                   placeholder="Enter your task title..."
+                   required>
+            {% if form.title.errors %}
+                <div class="error-message">
+                    {% for error in form.title.errors %}
+                        <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description (Optional)</label>
+            <textarea id="{{ form.description.id_for_label }}" 
+                      name="{{ form.description.name }}" 
+                      class="form-textarea"
+                      placeholder="Add more details about your task..."
+                      rows="4">{{ form.description.value|default:'' }}</textarea>
+            {% if form.description.errors %}
+                <div class="error-message">
+                    {% for error in form.description.errors %}
+                        <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" 
+                       id="{{ form.complete.id_for_label }}" 
+                       name="{{ form.complete.name }}"
+                       {% if form.complete.value %}checked{% endif %}
+                       class="form-checkbox">
+                <span class="checkmark"></span>
+                Mark as completed
+            </label>
+            {% if form.complete.errors %}
+                <div class="error-message">
+                    {% for error in form.complete.errors %}
+                        <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'tasks' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> {% if object %}Update Task{% else %}Create Task{% endif %}
+            </button>
+        </div>
     </form>
 </div>
 
+<style>
+    .form-container {
+        padding: 2rem;
+        background: white;
+    }
+
+    .modern-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-input,
+    .form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .checkbox-label {
+        display: flex !important;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 500 !important;
+        gap: 0.75rem;
+    }
+
+    .form-checkbox {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+    }
+
+    .checkmark {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--gray-300);
+        border-radius: 6px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .form-checkbox:checked + .checkmark {
+        background: var(--success);
+        border-color: var(--success);
+    }
+
+    .form-checkbox:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .form-checkbox {
+        display: none;
+    }
+
+    .error-message {
+        margin-top: 0.5rem;
+        color: var(--danger);
+        font-size: 0.875rem;
+    }
+
+    .error-message span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .btn-secondary {
+        background: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-300);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    @media (max-width: 640px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 
 {% endblock content %}

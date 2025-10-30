@@ -1,84 +1,136 @@
-{% extends 'base/main.html' %} {% block content %}
+{% extends 'base/main.html' %}
+{% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
 <div class="header-bar">
-    <div>
-        <h1>Hello {{request.user|title}}</h1>
-        <h3 style="margin:0">You have <i>{{count}}</i> incomplete task{{ count|pluralize:"s" }}</h3>
+    <div class="header-content">
+        <div>
+            <h1><i class="fas fa-tasks"></i> Hello {{request.user|title}}</h1>
+            <h3>You have <strong>{{count}}</strong> incomplete task{{ count|pluralize:"s" }}</h3>
+        </div>
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+        {% endif %}
     </div>
-
-    {% if request.user.is_authenticated %}
-    <a href="{% url 'logout' %}">Logout</a> {% else %}
-    <a href="{% url 'login' %}">Login</a> {% endif %}
 </div>
-
 
 <div id="search-add-wrapper">
-    <form method="GET" style="display: flex;">
-        <input type='text' name='search-area' placeholder="Search your task" value="{{search_input}}">
-        <input class="button" type="submit" value='Search'>
+    <form method="GET" class="search-form">
+        <input type="text" name="search-area" class="search-input" placeholder="🔍 Search your tasks..." value="{{search_input}}">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
     </form>
-    {% if tasks|length > 0 %}
-    <a id="add-link" href="{% url 'task-create' %}">&#x2b;</a>
-    {% endif %}
+    <a href="{% url 'task-create' %}" class="add-btn" title="Add new task">
+        <i class="fas fa-plus"></i>
+    </a>
 </div>
 
-
-<!-- Hidden form. Form submits new item positions -->
+<!-- Hidden form for reordering -->
 <form style="display: none;" id="reorderForm" method="post" action="{% url 'task-reorder' %}">
     {% csrf_token %}
     <input type="hidden" id="positionInput" name="position">
 </form>
 
-
-<div id="tasklist" class="task-items-wrapper">
+<div id="tasklist" class="task-list">
     {% for task in tasks %}
-    <div class="task-wrapper" data-position="{{task.pk}}">
-        <div class="task-title">
-            {% if task.complete %}
-            <div class="task-complete-icon"></div>
-            <i><s><a href="{% url 'task-update' task.id %}">{{task}}</a></s></i> {% else %}
-            <div class="task-incomplete-icon"></div>
-            <a href="{% url 'task-update' task.id %}">{{task}}</a> {% endif %}
+        <div class="task-wrapper {% if task.complete %}task-complete{% endif %}" data-position="{{task.pk}}">
+            <div class="task-content">
+                <div class="task-checkbox"></div>
+                <div class="task-text">
+                    <a href="{% url 'task-update' task.id %}">{{task.title}}</a>
+                    {% if task.description %}
+                        <p class="task-description">{{task.description|truncatechars:60}}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="task-controls">
+                <a href="{% url 'task-delete' task.id %}" class="delete-btn" title="Delete task">
+                    <i class="fas fa-trash"></i>
+                </a>
+                <div class="handle" title="Drag to reorder">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+            </div>
         </div>
-        <div class="task-controls">
-            <a class="delete-link" href="{% url 'task-delete' task.id %}">&#215;</a>
-            <span class="handle">&nbsp;&#10247;</span>
-        </div>
-    </div>
-
     {% empty %}
-    <div style="text-align: center; padding-bottom: 10px; line-height: 1em;">
-        <h3>No new tasks are created.</h3>
-        <h3>Create a <a style="text-decoration: none; color: #e53935;" href="{% url 'task-create' %}">New task</a> ! </h3>
-    </div>
+        <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <h3>No tasks yet!</h3>
+            <p>Create your first task to get started</p>
+            <a href="{% url 'task-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Task
+            </a>
+        </div>
     {% endfor %}
 </div>
 
 <script>
-    var taskList = document.getElementById("tasklist");
-    var reorderForm = document.getElementById("reorderForm");
-    var positionInput = document.getElementById("positionInput");
+    document.addEventListener('DOMContentLoaded', function() {
+        const taskList = document.getElementById('tasklist');
+        const reorderForm = document.getElementById('reorderForm');
+        const positionInput = document.getElementById('positionInput');
 
-    let sortable = Sortable.create(taskList, {
-        handle: '.handle',
-        ghostClass: 'dropArea',
-        chosenClass: 'selectedTask',
+        // Initialize sortable
+        const sortable = Sortable.create(taskList, {
+            handle: '.handle',
+            ghostClass: 'dropArea',
+            chosenClass: 'selectedTask',
+            animation: 200,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            onEnd: function() {
+                reordering();
+            }
+        });
 
-    });
-
-    function reordering() {
-        const rows = document.getElementsByClassName("task-wrapper");
-        let pos = [];
-        for (let row of rows) {
-            pos.push(row.dataset.position);
+        function reordering() {
+            const rows = document.getElementsByClassName('task-wrapper');
+            const positions = Array.from(rows).map(row => row.dataset.position);
+            positionInput.value = positions.join(',');
+            reorderForm.submit();
         }
-        console.log(pos.join(","))
-        positionInput.value = pos.join(',');
-        reorderForm.submit();
-    }
 
-    document.ondrop = reordering
+        // Add click handlers for task checkboxes
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function(e) {
+                e.preventDefault();
+                const taskWrapper = this.closest('.task-wrapper');
+                const taskLink = taskWrapper.querySelector('.task-text a');
+                if (taskLink) {
+                    window.location.href = taskLink.href;
+                }
+            });
+        });
+
+        // Add smooth animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideUp 0.6s ease-out';
+                }
+            });
+        });
+
+        document.querySelectorAll('.task-wrapper').forEach(task => {
+            observer.observe(task);
+        });
+    });
 </script>
+
+<style>
+    .task-description {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+    }
+    
+    .task-complete .task-description {
+        color: var(--gray-400);
+    }
+</style>
 
 {% endblock content %}
