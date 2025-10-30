@@ -18,22 +18,39 @@ git clone git@github.com:rufilboss/Todo_List_App.git
 
 ### Run these commands
 
-```sh
-pip install -r requirements.txt
-```
+1. **Install Dependencies**
 
-```sh
-python3 manage.py runserver
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run Migrations**
+
+   ```bash
+   python manage.py migrate
+   ```
+
+3. **Create Superuser** (Optional)
+
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+4. **Start Development Server**
+
+   ```bash
+   python manage.py runserver
+   ```
+
+5. **Open Browser**
+   Navigate to `http://127.0.0.1:8000`
 
 Now the website should be running at [http://localhost:8000](http://localhost:8000)!
 
-### Contributing
+## 🤝 Contributing
 
-Just to let you know, pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Feel free to fork this project and submit pull requests for any improvements!
 
-Please ensure that you update the texts as needed.
+## 📄 License
 
-### License
-
-This project is MIT-licensed.
+This project is open source and available under the MIT License.
